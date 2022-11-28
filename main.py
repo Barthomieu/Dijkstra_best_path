@@ -52,7 +52,10 @@ app.layout = html.Div([
               dcc.Input(id='closed_nodes', value='tutaj będziemy podawać nieczynne węzły', type='text')]),
     html.Button(id='submit-button-state', n_clicks=0,
                 children='Szukaj najkrótszej trasy'),
-
+    html.Br(),
+    html.Div(id='output-state'),
+    html.Br(),
+    html.Div(id='container')
 
 ])
 
