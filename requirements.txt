@@ -1,0 +1,7 @@
+dash~=2.7.0
+networkx~=2.8.8
+Shapely~=1.8.5.post1
+osmnx~=1.2.2
+plotly~=5.11.0
+numpy~=1.23.5
+scikit-image~=0.19.3
