@@ -13,13 +13,23 @@ def ImageGet():
     return fig
 
 
+def remove_edge_by_name(G_copy, searched_name):
+    print("jestem w funkcji do usuwnia")
+    for u, v, name in G_copy.edges(data='name'):
+        if name == searched_name:
+            print("usuwam")
+            G_copy.remove_edge(u, v)
+            print(u,v,name)
+
+
+
 def Setup(a1, a2, a3, a4):
     north, east, south, west = a1, a2, a3, a4  # wspolrzedne mapy pobrane ze strony https://www.openstreetmap.org/
     # pobranie wszystkich wierzcholkow mapy
     G = ox.graph_from_bbox(north, south, east, west,
                            network_type='drive')  # opcjonalnie walk
 
-
+    print(" G nodes ########################", G.nodes)
     # nadanie indeksow wszystkim wezlom pobranym z mapy
     v = len(G.nodes)
     di = {}
@@ -40,6 +50,14 @@ def Setup(a1, a2, a3, a4):
         li.append([new_src, new_dst, weight])
     ox.plot_graph(G, edge_color="y", save=True, filepath="WebAppCurrImage.jpg")
     e = len(li)
+    #print("usuwam z pliku #########", )
+    #for u, v, keys, name in G.edges(data="name", keys=True):
+      #  print(u, v, keys, name)
+      #  if name  == '1 Maja':
+       #     print("Znalazłem ######", name)
+        #    pass
+    #closed_street = 'Szkolna'
+    #remove_edge_by_name(G, closed_street)
 
     return G, v, e, li, di
 
@@ -50,6 +68,8 @@ def node_list_to_path(G, node_list):
     lines = []
     for u, v in edge_nodes:
         data = min(G.get_edge_data(u, v).values(), key=lambda x: x['length'])
+        #print("#### g edge data", G.get_edge_data(u, v).values())
+        #print(data)
         #jezlei wystepuje jakas geometria - krzywizna miedzy punktami
         if 'geometry' in data:
             xs, ys = data['geometry'].xy
@@ -89,7 +109,7 @@ def plot_path(lat, long, origin_point, destination_point):
         marker={'size': 10},
         line=dict(width=4.5, color='blue')))
 
-    # znacznkik punku poczatkowego
+    # znacznkik punktu poczatkowego
     fig.add_trace(go.Scattermapbox(
         name="Source",
         mode="markers",
