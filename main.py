@@ -95,58 +95,47 @@ def getPath(parent, output_node_id_zero_indexed, input_node_id_zero_index, di):
               State('destination-long', 'value'),
               State('destination-lat', 'value'),
                 State('closed_streets', 'value'))
-def update_output(btn1, btn2 , input1, input2, input3, input4, src_long, src_lat, dst_long, dst_lat,closed_streets):
+def update_output(btn1, btn2 , input1, input2, input3, input4, src_long, src_lat, dst_long, dst_lat, closed_streets):
+    triggered_id = dash.ctx.triggered_id
     src_long = float(src_long)
     src_lat = float(src_lat)
     dst_long = float(dst_long)
     dst_lat = float(dst_lat)
     origin_point = (src_long, src_lat)
     destination_point = (dst_long, dst_lat)
-    G, v, e, li, di = Setup(float(input1), float(
-        input2), float(input3), float(input4))
+    print("kliknięty button", triggered_id)
+    if triggered_id == 'submit-button-state1':
+        G, v, e, li, di = Setup(float(input1), float(
+            input2), float(input3), float(input4))
+    elif triggered_id == 'submit-button-state2':
+        print("jestem w drugim warunku ")
+        G, v, e, li, di = Setup(float(input1), float(
+            input2), float(input3), float(input4), closed_streets)
 
     g = Graph(v)  # Graf z liczba wierzcholkow v
     for i in range(e):
         g.Add_Into_Adjlist(li[i][0], Node_Distance(li[i][1], li[i][2]))
-    if btn1 is not None:
-        # funkcja z biblioteki os fo pobierania najblizszych wezlow na podstawie wspolrzednych i listy wezlow
-        origin_node = ox.nearest_nodes(G, src_long, src_lat)
-        destination_node = ox.nearest_nodes(G, dst_long,dst_lat)
-        input_node_id_zero_index = di[origin_node][0]
-        output_node_id_zero_indexed = di[destination_node][0]
 
-        ShortestDist, parent = g.Dijkstras_Shortest_Path(
-            input_node_id_zero_index, output_node_id_zero_indexed, v)
-        path = getPath(parent, output_node_id_zero_indexed,
-                       input_node_id_zero_index, di)
-        print("Path", path)
-        lat2, long2 = calc_lat_long(G, path)
-        fig1 = plot_path(lat2, long2, origin_point, destination_point)
-        return html.Div([dcc.Graph(figure=ImageGet()), html.Br(),
-                         html.H6("Najrótsza ścieżka wynosi = {} metrów".format(ShortestDist),
-                                 style={'color': 'Red', 'text-align': 'center'}), html.Br(), dcc.Graph(figure=fig1)])
-    if btn2 is not None:
-        print("wywołanie z drugiego przyciku")
-        G_copy = G.copy()
-        closed_street = closed_streets
-        print(closed_streets, " usuwam ulice")
-        remove_edge_by_name(G_copy, closed_street)
 
-        origin_node = ox.nearest_nodes(G_copy, src_long, src_lat)
-        destination_node = ox.nearest_nodes(G_copy, dst_long, dst_lat)
-        input_node_id_zero_index = di[origin_node][0]
-        output_node_id_zero_indexed = di[destination_node][0]
 
-        ShortestDist, parent = g.Dijkstras_Shortest_Path(
-            input_node_id_zero_index, output_node_id_zero_indexed, v)
-        path = getPath(parent, output_node_id_zero_indexed,
-                       input_node_id_zero_index, di)
-        print("Path2", path)
-        lat2, long2 = calc_lat_long(G_copy, path)
-        fig2 = plot_path(lat2, long2, origin_point, destination_point)
-        return html.Div([dcc.Graph(figure=ImageGet()), html.Br(),
-                         html.H6("Najrótsza ścieżka wynosi = {} metrów".format(ShortestDist),
-                                 style={'color': 'Red', 'text-align': 'center'}), html.Br(), dcc.Graph(figure=fig2)])
+    # funkcja z biblioteki os fo pobierania najblizszych wezlow na podstawie wspolrzednych i listy wezlow
+    origin_node = ox.nearest_nodes(G, src_long, src_lat)
+    destination_node = ox.nearest_nodes(G, dst_long,dst_lat)
+    input_node_id_zero_index = di[origin_node][0]
+    output_node_id_zero_indexed = di[destination_node][0]
+
+    ShortestDist, parent = g.Dijkstras_Shortest_Path(
+        input_node_id_zero_index, output_node_id_zero_indexed, v)
+    path = getPath(parent, output_node_id_zero_indexed,
+                   input_node_id_zero_index, di)
+    print("Path", path)
+    lat2, long2 = calc_lat_long(G, path)
+    fig1 = plot_path(lat2, long2, origin_point, destination_point)
+    return html.Div([dcc.Graph(figure=ImageGet()), html.Br(),
+                     html.H6("Najrótsza ścieżka wynosi = {} metrów".format(ShortestDist),
+                             style={'color': 'Red', 'text-align': 'center'}), html.Br(), dcc.Graph(figure=fig1)])
+
+
 
 
 if __name__ == '__main__':

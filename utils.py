@@ -1,3 +1,4 @@
+import osmnx.utils_graph
 import plotly.express as px
 from skimage import io
 
@@ -15,21 +16,40 @@ def ImageGet():
 
 def remove_edge_by_name(G_copy, searched_name):
     print("jestem w funkcji do usuwnia")
-    for u, v, name in G_copy.edges(data='name'):
-        if name == searched_name:
-            print("usuwam")
-            G_copy.remove_edge(u, v)
-            print(u,v,name)
+
+    #print(G_copy.edges(data=True))
+    #for u, v, name in G_copy.edges(data='name'):
+    #selected_edges = [(u, v) for u, v, key, e in G_copy.edges(data=True,keys=True) if e['name'] == 'Szkolna']
+    #print("selected edges", selected_edges)
+    searched_edges_ids = [(u, v) for u, v, key, data in G_copy.edges(data=True, keys=True) if 'name' in data and data['name'] == searched_name]
+    print(len(searched_edges_ids), searched_edges_ids)
+    if len(searched_edges_ids) > 0:
+        G_copy.remove_edges_from(searched_edges_ids)
+    else:
+        print("Nie znaleziono ")
+    return G_copy
+    #for u, v, key, data in G_copy.edges(data=True, keys=True):
+    #   if 'name' in data and data['name'] == 'Szkolna':
+    #        print("searched_edges_id", u, v, key, data)
+    #        G_copy.remove_edge(u,v)
 
 
 
-def Setup(a1, a2, a3, a4):
+
+
+
+
+def Setup(a1, a2, a3, a4, skip_nodes = None):
     north, east, south, west = a1, a2, a3, a4  # wspolrzedne mapy pobrane ze strony https://www.openstreetmap.org/
     # pobranie wszystkich wierzcholkow mapy
     G = ox.graph_from_bbox(north, south, east, west,
                            network_type='drive')  # opcjonalnie walk
-
-    print(" G nodes ########################", G.nodes)
+    #warunek do usunięcia zamknietych ulic z modelu
+    if skip_nodes is not None:
+        print(" G edges przed usunięciem  ", len(G.edges))
+        G2 = remove_edge_by_name(G, skip_nodes)
+        print(" G edges po usunięciu ", len(G.edges))
+        print(G2)
     # nadanie indeksow wszystkim wezlom pobranym z mapy
     v = len(G.nodes)
     di = {}
@@ -56,8 +76,7 @@ def Setup(a1, a2, a3, a4):
       #  if name  == '1 Maja':
        #     print("Znalazłem ######", name)
         #    pass
-    #closed_street = 'Szkolna'
-    #remove_edge_by_name(G, closed_street)
+
 
     return G, v, e, li, di
 
